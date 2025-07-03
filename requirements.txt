@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic
+transformers
+openai==0.28
+google-generativeai
+anthropic
+python-docx
+restrictedpython  # optional, for sandboxed test execution 

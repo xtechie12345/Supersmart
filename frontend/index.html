@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Generator</title>
+</head>
+<body>
+  <h2>Code Generation Tool</h2>
+
+  <label for="provider">Select LLM Provider:</label>
+  <select id="provider" onchange="populateModels()">
+    <option value="openai">OpenAI</option>
+    <option value="claude">Claude</option>
+    <option value="gemini">Gemini</option>
+    <option value="grok">Grok</option>
+  </select>
+
+  <br><br>
+
+  <label for="model">Select Model:</label>
+  <select id="model">
+    <!-- Will be filled dynamically -->
+  </select>
+
+  <br><br>
+
+  <label for="apiKey">API Key (optional):</label>
+  <input type="text" id="apiKey" style="width: 300px;" placeholder="Leave blank to use .env fallback">
+
+  <br><br>
+
+  <label for="task">Enter task description:</label><br>
+  <textarea id="task" rows="5" cols="60" placeholder="Describe the code you want generated..."></textarea>
+
+  <br><br>
+  <button onclick="generateCode()">Generate Code</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    const modelOptions = {
+      openai: ["gpt-4", "gpt-4o"],
+      claude: ["claude-3-opus-20240229", "claude-3-haiku-20240307"],
+      gemini: ["gemini-pro", "gemini-1.5-flash"],
+      grok: ["grok-1"]
+    };
+
+    function populateModels() {
+      const provider = document.getElementById("provider").value;
+      const modelSelect = document.getElementById("model");
+      modelSelect.innerHTML = "";
+      modelOptions[provider].forEach(model => {
+        const option = document.createElement("option");
+        option.value = model;
+        option.text = model;
+        modelSelect.add(option);
+      });
+    }
+
+    // Initial population
+    populateModels();
+
+    async function generateCode() {
+      const provider = document.getElementById("provider").value;
+      const model = document.getElementById("model").value;
+      const apiKey = document.getElementById("apiKey").value;
+      const task = document.getElementById("task").value;
+
+      const body = { provider, model, task };
+      if (apiKey) body.api_key = apiKey;
+
+      const response = await fetch("http://127.0.0.1:8000/generate-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const result = await response.json();
+      document.getElementById("output").textContent = JSON.stringify(result, null, 2);
+    }
+  </script>
+</body>
+</html>
